@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# SQLite database local del proyecto SIGASJ
+Backend-Proyecto/sigasj.db
+Backend-Proyecto/sigasj.db-*

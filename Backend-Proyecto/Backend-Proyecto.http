@@ -1,0 +1,87 @@
+@baseUrl = http://localhost:5145
+@token = reemplazar_con_token_jwt
+
+### Health
+GET {{baseUrl}}/api/health
+
+### Login admin
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "admin",
+  "contrasena": "admin1234"
+}
+
+### Login fontanero (demo)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "fontanero",
+  "contrasena": "fontanero1234"
+}
+
+### Crear averia
+POST {{baseUrl}}/api/averias
+Content-Type: application/json
+
+{
+  "nombre": "Juan Perez",
+  "telefono": "8888-8888",
+  "correo": "juan@correo.com",
+  "direccion": "San Juan centro",
+  "tipo": "Fuga",
+  "descripcion": "Fuga visible en la acera principal"
+}
+
+### Listar averias
+GET {{baseUrl}}/api/averias
+
+### Obtener averia por numero
+GET {{baseUrl}}/api/averias/AV-0001
+
+### Crear solicitud
+POST {{baseUrl}}/api/solicitudes
+Content-Type: application/json
+
+{
+  "nombre": "Maria Lopez",
+  "cedula": "1-2345-6789",
+  "telefono": "7777-7777",
+  "correo": "maria@correo.com",
+  "direccion": "Barrio Norte",
+  "tipo": "Nueva conexion",
+  "descripcion": "Solicito nueva conexion de agua potable"
+}
+
+### Consultar seguimiento
+GET {{baseUrl}}/api/seguimiento/SOL-0001
+
+### Listar comunicados
+GET {{baseUrl}}/api/comunicados
+
+### Listar proyectos
+GET {{baseUrl}}/api/proyectos
+
+### Listar actividades plomeria (admin)
+GET {{baseUrl}}/api/actividades-plomeria
+Authorization: Bearer {{token}}
+
+### Crear actividad plomeria (admin)
+POST {{baseUrl}}/api/actividades-plomeria
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "tipo": "Control de Fugas",
+  "cliente": "Cliente demo",
+  "ubicacion": "Sector 3",
+  "descripcion": "Revision de fuga reportada",
+  "estado": "Pendiente"
+}
+
+### Cambiar estado actividad (admin)
+PATCH {{baseUrl}}/api/actividades-plomeria/ACT-ejemplo/estado
+Authorization: Bearer {{token}}
