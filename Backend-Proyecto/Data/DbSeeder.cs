@@ -1,3 +1,5 @@
+using System.Data;
+using System.Data.Common;
 using Backend_Proyecto.Configuration;
 using Backend_Proyecto.Models.Entities;
 using Backend_Proyecto.Utils;
@@ -252,13 +254,56 @@ public static class DbSeeder
 
         foreach (var sql in alteraciones)
         {
-            try
+            var partes = sql.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (partes.Length < 6)
             {
-                await context.Database.ExecuteSqlRawAsync(sql);
+                continue;
             }
-            catch
+
+            var tabla = partes[2];
+            var columna = partes[5];
+
+            if (await ColumnaExisteAsync(context, tabla, columna))
             {
-                // La columna ya existe en bases de datos actualizadas.
+                continue;
+            }
+
+            await context.Database.ExecuteSqlRawAsync(sql);
+        }
+    }
+
+    private static async Task<bool> ColumnaExisteAsync(AppDbContext context, string tabla, string columna)
+    {
+        var conexion = context.Database.GetDbConnection();
+        var debeCerrar = conexion.State != ConnectionState.Open;
+
+        if (debeCerrar)
+        {
+            await conexion.OpenAsync();
+        }
+
+        try
+        {
+            await using var comando = conexion.CreateCommand();
+            comando.CommandText = $"PRAGMA table_info(\"{tabla}\");";
+            await using DbDataReader lector = await comando.ExecuteReaderAsync();
+
+            while (await lector.ReadAsync())
+            {
+                var nombre = lector.GetString(1);
+                if (string.Equals(nombre, columna, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        finally
+        {
+            if (debeCerrar)
+            {
+                await conexion.CloseAsync();
             }
         }
     }
