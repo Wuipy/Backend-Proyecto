@@ -171,7 +171,42 @@ public static class Mappers
 
                 ? FechaFormatter.Formatear(actividad.FechaActualizacion.Value)
 
-                : null
+                : null,
+
+            AbonadoNumero = actividad.AbonadoNumero,
+            NombreAbonado = actividad.NombreAbonado,
+            LugarVisita = actividad.LugarVisita,
+            MotivoVisita = actividad.MotivoVisita,
+            LecturaAnteriorM3 = actividad.LecturaAnteriorM3,
+            LecturaActualM3 = actividad.LecturaActualM3,
+            ConsumoRegistradoM3 = actividad.ConsumoRegistradoM3,
+            EstadoMedidor = actividad.EstadoMedidor,
+            DetectoFuga = actividad.DetectoFuga,
+            ResultadoInspeccion = actividad.ResultadoInspeccion,
+            AccionRecomendada = actividad.AccionRecomendada,
+            FotoMedidorNombre = actividad.FotoMedidorNombre,
+            FotoMedidorBase64 = actividad.FotoMedidorBase64,
+            AforoNumero = actividad.AforoNumero,
+            LugarPrueba = actividad.LugarPrueba,
+            HoraPrueba = actividad.HoraPrueba,
+            ResultadoPsi = actividad.ResultadoPsi,
+            DiametroTuberia = actividad.DiametroTuberia,
+            ObservacionesPresion = actividad.ObservacionesPresion,
+            PruebaNumero = actividad.PruebaNumero,
+            LugarCasa = actividad.LugarCasa,
+            HoraControl = actividad.HoraControl,
+            CloroResidual = actividad.CloroResidual,
+            Turbiedad = actividad.Turbiedad,
+            Ph = actividad.Ph,
+            Olor = actividad.Olor,
+            Sabor = actividad.Sabor,
+            ObservacionesControlOperativo = actividad.ObservacionesControlOperativo,
+            DetalleTrabajoRealizado = actividad.DetalleTrabajoRealizado,
+            ResultadoTrabajo = actividad.ResultadoTrabajo,
+            RequiereSeguimiento = actividad.RequiereSeguimiento,
+            PrioridadSeguimiento = actividad.PrioridadSeguimiento,
+            FotoEvidenciaNombre = actividad.FotoEvidenciaNombre,
+            FotoEvidenciaBase64 = actividad.FotoEvidenciaBase64
 
         };
 

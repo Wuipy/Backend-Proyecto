@@ -19,16 +19,17 @@ public static class DbSeeder
         "Ruptura de tuberia"
     ];
 
+    public const string TipoVisitaCampo = "Visita de campo";
+    public const string TipoTomaPresion = "Toma de presion";
+    public const string TipoControlOperativo = "Control operativo";
+    public const string TipoActividadGeneral = "Actividad general";
+
     public static readonly string[] TiposActividadFontanero =
     [
-        "Reparacion de averia",
-        "Lectura de medidor",
-        "Cambio de medidor",
-        "Revision de tuberia",
-        "Instalacion de servicio",
-        "Mantenimiento preventivo",
-        "Revision de presion de agua",
-        "Otro"
+        TipoVisitaCampo,
+        TipoTomaPresion,
+        TipoControlOperativo,
+        TipoActividadGeneral
     ];
 
     private static readonly string[] TiposSolicitud =
@@ -212,7 +213,41 @@ public static class DbSeeder
             "ALTER TABLE Averias ADD COLUMN DescripcionTrabajo TEXT NULL",
             "ALTER TABLE Averias ADD COLUMN MaterialesUtilizados TEXT NULL",
             "ALTER TABLE Averias ADD COLUMN EvidenciaTrabajoNombre TEXT NULL",
-            "ALTER TABLE Averias ADD COLUMN EvidenciaTrabajoBase64 TEXT NULL"
+            "ALTER TABLE Averias ADD COLUMN EvidenciaTrabajoBase64 TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN AbonadoNumero TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN NombreAbonado TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN LugarVisita TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN MotivoVisita TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN LecturaAnteriorM3 REAL NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN LecturaActualM3 REAL NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN ConsumoRegistradoM3 REAL NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN EstadoMedidor TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN DetectoFuga TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN ResultadoInspeccion TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN AccionRecomendada TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN FotoMedidorNombre TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN FotoMedidorBase64 TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN AforoNumero TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN LugarPrueba TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN HoraPrueba TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN ResultadoPsi REAL NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN DiametroTuberia TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN ObservacionesPresion TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN PruebaNumero TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN LugarCasa TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN HoraControl TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN CloroResidual TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN Turbiedad TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN Ph REAL NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN Olor TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN Sabor TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN ObservacionesControlOperativo TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN DetalleTrabajoRealizado TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN ResultadoTrabajo TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN RequiereSeguimiento TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN PrioridadSeguimiento TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN FotoEvidenciaNombre TEXT NULL",
+            "ALTER TABLE ActividadesFontanero ADD COLUMN FotoEvidenciaBase64 TEXT NULL"
         };
 
         foreach (var sql in alteraciones)
