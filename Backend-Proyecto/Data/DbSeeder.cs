@@ -43,29 +43,6 @@ public static class DbSeeder
         "Cambio de titular"
     ];
 
-    private static readonly string[] TiposActividad =
-    [
-        "Control de Fugas",
-        "Toma de presion",
-        "Visita de Campo",
-        "Control de Aforos",
-        "Control Operativo"
-    ];
-
-    public static readonly string[] PrioridadesActividad =
-    [
-        "Baja",
-        "Media",
-        "Alta"
-    ];
-
-    private static readonly string[] EstadosActividad =
-    [
-        "Pendiente",
-        "En progreso",
-        "Completado"
-    ];
-
     public static async Task SeedAsync(AppDbContext context, AdminSettings adminSettings)
     {
         await context.Database.EnsureCreatedAsync();
@@ -182,23 +159,6 @@ public static class DbSeeder
     public static bool EsTipoSolicitudValido(string tipo) =>
         TiposSolicitud.Contains(tipo, StringComparer.Ordinal);
 
-    public static bool EsTipoActividadValido(string tipo) =>
-        TiposActividad.Contains(tipo, StringComparer.Ordinal);
-
-    public static bool EsPrioridadActividadValida(string prioridad) =>
-        PrioridadesActividad.Contains(prioridad, StringComparer.Ordinal);
-
-    public static bool EsEstadoActividadValido(string estado) =>
-        EstadosActividad.Contains(estado, StringComparer.Ordinal);
-
-    public static string SiguienteEstadoActividad(string estadoActual) =>
-        estadoActual switch
-        {
-            "Pendiente" => "En progreso",
-            "En progreso" => "Completado",
-            _ => "Pendiente"
-        };
-
     private static async Task AplicarActualizacionesEsquemaAsync(AppDbContext context)
     {
         var alteraciones = new[]
@@ -206,10 +166,6 @@ public static class DbSeeder
             "ALTER TABLE Averias ADD COLUMN FontaneroAsignadoId INTEGER NULL",
             "ALTER TABLE Averias ADD COLUMN NotasAtencion TEXT NULL",
             "ALTER TABLE Averias ADD COLUMN FechaUltimaActualizacion TEXT NULL",
-            "ALTER TABLE ActividadesPlomeria ADD COLUMN Prioridad TEXT NOT NULL DEFAULT 'Media'",
-            "ALTER TABLE ActividadesPlomeria ADD COLUMN NotasSeguimiento TEXT NULL",
-            "ALTER TABLE ActividadesPlomeria ADD COLUMN NumeroAveriaVinculada TEXT NULL",
-            "ALTER TABLE ActividadesPlomeria ADD COLUMN FechaActualizacion TEXT NULL",
             "ALTER TABLE Averias ADD COLUMN Prioridad TEXT NOT NULL DEFAULT 'Media'",
             "ALTER TABLE Averias ADD COLUMN ObservacionesAdmin TEXT NULL",
             "ALTER TABLE Averias ADD COLUMN DescripcionTrabajo TEXT NULL",

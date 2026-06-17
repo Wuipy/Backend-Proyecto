@@ -41,7 +41,6 @@ builder.Services.AddScoped<ISeguimientoService, SeguimientoService>();
 builder.Services.AddScoped<IAveriaService, AveriaService>();
 builder.Services.AddScoped<ISolicitudService, SolicitudService>();
 builder.Services.AddScoped<IConsultaSeguimientoService, ConsultaSeguimientoService>();
-builder.Services.AddScoped<IActividadPlomeriaService, ActividadPlomeriaService>();
 builder.Services.AddScoped<IActividadFontaneroService, ActividadFontaneroService>();
 builder.Services.AddScoped<ILecturaMedidorService, LecturaMedidorService>();
 builder.Services.AddScoped<IContenidoService, ContenidoService>();
