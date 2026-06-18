@@ -5,6 +5,7 @@ using Backend_Proyecto.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -68,8 +69,25 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var adminSettings = builder.Configuration.GetSection(AdminSettings.SectionName).Get<AdminSettings>()
         ?? new AdminSettings();
-    await context.Database.MigrateAsync();
-    await DbSeeder.SeedAsync(context, adminSettings);
+
+    try
+    {
+        await context.Database.MigrateAsync();
+        await DatabaseSchemaEnsurer.EnsureLecturasMedidorColumnsAsync(context);
+        await DbSeeder.SeedAsync(context, adminSettings);
+    }
+    catch (PostgresException ex) when (ex.SqlState == "28P01")
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine();
+        Console.WriteLine("ERROR: Autenticacion fallida con Supabase (password incorrecto).");
+        Console.WriteLine("Configure la contraseña real en una de estas opciones:");
+        Console.WriteLine("  1) Copie appsettings.Development.example.json -> appsettings.Development.json");
+        Console.WriteLine("  2) Variable de entorno ConnectionStrings__DefaultConnection");
+        Console.WriteLine("  3) Ejecute el SQL de seed en Supabase: Migrations/sql/setup_completo_lecturas_supabase.sql");
+        Console.ResetColor();
+        throw;
+    }
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();

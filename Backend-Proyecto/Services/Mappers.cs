@@ -177,52 +177,58 @@ public static class Mappers
 
 
     public static LecturaMedidorResponseDto ToLecturaResponse(LecturaMedidor lectura)
-
     {
-
-        var alerta = lectura.ConsumoMesAnterior.HasValue &&
-
-                     lectura.ConsumoMesAnterior.Value > 0 &&
-
-                     lectura.Consumo > lectura.ConsumoMesAnterior.Value * 2;
-
-
+        var alerta = EsAlertaConsumoAlto(lectura);
 
         return new LecturaMedidorResponseDto
-
         {
-
             Id = lectura.Id,
-
             NombreAbonado = lectura.NombreAbonado,
-
+            NumeroAbonado = lectura.NumeroAbonado,
             NumeroMedidor = lectura.NumeroMedidor,
-
             CedulaAbonado = lectura.CedulaAbonado,
-
+            Ubicacion = lectura.Ubicacion,
             LecturaAnterior = lectura.LecturaAnterior,
-
             LecturaActual = lectura.LecturaActual,
-
             Consumo = lectura.Consumo,
-
             ConsumoMesAnterior = lectura.ConsumoMesAnterior,
-
             AlertaConsumoAlto = alerta,
-
+            ConsumoAlto = lectura.ConsumoAlto || alerta,
             FechaLectura = FechaFormatter.Formatear(lectura.FechaLectura),
-
+            HoraLectura = lectura.HoraLectura,
             Observaciones = lectura.Observaciones,
-
+            ObservacionAdmin = lectura.ObservacionAdmin,
+            MotivoVisita = lectura.MotivoVisita,
+            ResultadoInspeccion = lectura.ResultadoInspeccion,
             Estado = lectura.Estado,
-
+            EstadoMedidor = lectura.EstadoMedidor,
+            EvidenciaNombre = lectura.EvidenciaNombre,
+            EvidenciaBase64 = lectura.EvidenciaBase64,
             Fontanero = lectura.Fontanero.NombreUsuario,
-
-            FechaRegistro = FechaFormatter.Formatear(lectura.FechaRegistro)
-
+            RevisadaPorAdmin = lectura.RevisadaPorAdmin?.NombreUsuario,
+            FechaRegistro = FechaFormatter.Formatear(lectura.FechaRegistro),
+            FechaActualizacion = lectura.FechaActualizacion.HasValue
+                ? FechaFormatter.Formatear(lectura.FechaActualizacion.Value)
+                : null
         };
-
     }
+
+    public static bool EsAlertaConsumoAlto(LecturaMedidor lectura) =>
+        lectura.ConsumoMesAnterior.HasValue &&
+        lectura.ConsumoMesAnterior.Value > 0 &&
+        lectura.Consumo > lectura.ConsumoMesAnterior.Value * 2;
+
+    public static HistorialLecturaDto ToHistorialLecturaDto(HistorialLectura historial) =>
+        new()
+        {
+            Id = historial.Id,
+            Accion = historial.Accion,
+            EstadoAnterior = historial.EstadoAnterior,
+            EstadoNuevo = historial.EstadoNuevo,
+            Observacion = historial.Observacion,
+            Usuario = historial.UsuarioNombre,
+            Fecha = FechaFormatter.Formatear(historial.Fecha)
+        };
 
 
 

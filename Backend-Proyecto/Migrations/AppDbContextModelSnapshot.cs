@@ -340,6 +340,46 @@ namespace Backend_Proyecto.Migrations
                     b.ToTable("Comunicados");
                 });
 
+            modelBuilder.Entity("Backend_Proyecto.Models.Entities.HistorialLectura", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Accion")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("EstadoAnterior")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EstadoNuevo")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("LecturaMedidorId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Observacion")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("UsuarioId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UsuarioNombre")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LecturaMedidorId");
+
+                    b.ToTable("HistorialLecturas");
+                });
+
             modelBuilder.Entity("Backend_Proyecto.Models.Entities.LecturaMedidor", b =>
                 {
                     b.Property<int>("Id")
@@ -354,12 +394,27 @@ namespace Backend_Proyecto.Migrations
                     b.Property<decimal>("Consumo")
                         .HasColumnType("numeric");
 
+                    b.Property<bool>("ConsumoAlto")
+                        .HasColumnType("boolean");
+
                     b.Property<decimal?>("ConsumoMesAnterior")
                         .HasColumnType("numeric");
 
                     b.Property<string>("Estado")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("EstadoMedidor")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EvidenciaBase64")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EvidenciaNombre")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("FechaActualizacion")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("FechaLectura")
                         .HasColumnType("timestamp with time zone");
@@ -370,26 +425,49 @@ namespace Backend_Proyecto.Migrations
                     b.Property<int>("FontaneroId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("HoraLectura")
+                        .HasColumnType("text");
+
                     b.Property<decimal>("LecturaActual")
                         .HasColumnType("numeric");
 
                     b.Property<decimal>("LecturaAnterior")
                         .HasColumnType("numeric");
 
+                    b.Property<string>("MotivoVisita")
+                        .HasColumnType("text");
+
                     b.Property<string>("NombreAbonado")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NumeroAbonado")
                         .HasColumnType("text");
 
                     b.Property<string>("NumeroMedidor")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("ObservacionAdmin")
+                        .HasColumnType("text");
+
                     b.Property<string>("Observaciones")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ResultadoInspeccion")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("RevisadaPorAdminId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Ubicacion")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FontaneroId");
+
+                    b.HasIndex("RevisadaPorAdminId");
 
                     b.ToTable("LecturasMedidor");
                 });
@@ -554,6 +632,17 @@ namespace Backend_Proyecto.Migrations
                     b.Navigation("Averia");
                 });
 
+            modelBuilder.Entity("Backend_Proyecto.Models.Entities.HistorialLectura", b =>
+                {
+                    b.HasOne("Backend_Proyecto.Models.Entities.LecturaMedidor", "LecturaMedidor")
+                        .WithMany()
+                        .HasForeignKey("LecturaMedidorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LecturaMedidor");
+                });
+
             modelBuilder.Entity("Backend_Proyecto.Models.Entities.LecturaMedidor", b =>
                 {
                     b.HasOne("Backend_Proyecto.Models.Entities.Usuario", "Fontanero")
@@ -562,7 +651,14 @@ namespace Backend_Proyecto.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Backend_Proyecto.Models.Entities.Usuario", "RevisadaPorAdmin")
+                        .WithMany()
+                        .HasForeignKey("RevisadaPorAdminId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Fontanero");
+
+                    b.Navigation("RevisadaPorAdmin");
                 });
 #pragma warning restore 612, 618
         }

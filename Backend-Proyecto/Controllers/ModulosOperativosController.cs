@@ -20,7 +20,7 @@ public class UsuariosController(AppDbContext context) : ControllerBase
         var fontaneros = await context.Usuarios
             .Where(u => u.Rol == Roles.Fontanero)
             .OrderBy(u => u.NombreUsuario)
-            .Select(u => new FontaneroResumenDto { Usuario = u.NombreUsuario })
+            .Select(u => new FontaneroResumenDto { Id = u.Id, Usuario = u.NombreUsuario })
             .ToListAsync();
 
         return Ok(fontaneros);
@@ -131,6 +131,13 @@ public class LecturasMedidorController(
         return Ok(await lecturaService.ListarTodasAsync());
     }
 
+    [HttpGet("resumen")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<ActionResult<ResumenLecturasMedidorDto>> ResumenAdmin()
+    {
+        return Ok(await lecturaService.ResumenAdminAsync());
+    }
+
     [HttpGet("mis-lecturas")]
     [Authorize(Roles = Roles.Fontanero)]
     public async Task<ActionResult<IReadOnlyList<LecturaMedidorResponseDto>>> ListarMisLecturas()
@@ -141,11 +148,52 @@ public class LecturasMedidorController(
         return Ok(await lecturaService.ListarPorFontaneroAsync(usuario.Id));
     }
 
+    [HttpGet("mis-lecturas/resumen")]
+    [Authorize(Roles = Roles.Fontanero)]
+    public async Task<ActionResult<ResumenLecturasMedidorDto>> ResumenFontanero()
+    {
+        var usuario = await ObtenerUsuarioActualAsync();
+        if (usuario is null) return Unauthorized();
+
+        return Ok(await lecturaService.ResumenFontaneroAsync(usuario.Id));
+    }
+
+    [HttpGet("pendientes")]
+    [Authorize(Roles = Roles.Fontanero)]
+    public async Task<ActionResult<IReadOnlyList<LecturaMedidorResponseDto>>> ListarPendientes()
+    {
+        var usuario = await ObtenerUsuarioActualAsync();
+        if (usuario is null) return Unauthorized();
+
+        return Ok(await lecturaService.ListarPendientesPorFontaneroAsync(usuario.Id));
+    }
+
     [HttpGet("historial/{numeroMedidor}")]
     [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<IReadOnlyList<LecturaMedidorResponseDto>>> Historial(string numeroMedidor)
     {
         return Ok(await lecturaService.HistorialPorMedidorAsync(numeroMedidor));
+    }
+
+    [HttpGet("historial-abonado/{numeroAbonado}")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<ActionResult<IReadOnlyList<LecturaMedidorResponseDto>>> HistorialAbonado(string numeroAbonado)
+    {
+        return Ok(await lecturaService.HistorialPorAbonadoAsync(numeroAbonado));
+    }
+
+    [HttpGet("{id:int}/historial-cambios")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<ActionResult<IReadOnlyList<HistorialLecturaDto>>> HistorialCambios(int id)
+    {
+        return Ok(await lecturaService.HistorialCambiosAsync(id));
+    }
+
+    [HttpGet("reportes/{tipo}")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<ActionResult<ReporteLecturasMedidorDto>> Reporte(string tipo)
+    {
+        return Ok(await lecturaService.GenerarReporteAsync(tipo));
     }
 
     [HttpPost]
@@ -157,8 +205,35 @@ public class LecturasMedidorController(
         var usuario = await ObtenerUsuarioActualAsync();
         if (usuario is null) return Unauthorized();
 
-        var lectura = await lecturaService.CrearAsync(dto, usuario.Id);
-        return CreatedAtAction(nameof(ListarMisLecturas), lectura);
+        try
+        {
+            var lectura = await lecturaService.CrearAsync(dto, usuario.Id);
+            return CreatedAtAction(nameof(ListarMisLecturas), lectura);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new ApiErrorResponse { Message = ex.Message });
+        }
+    }
+
+    [HttpPost("asignar")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<ActionResult<LecturaMedidorResponseDto>> Asignar([FromBody] AsignarLecturaMedidorDto dto)
+    {
+        if (!ModelState.IsValid) return BadRequest(CrearErrorValidacion());
+
+        var usuario = await ObtenerUsuarioActualAsync();
+        if (usuario is null) return Unauthorized();
+
+        try
+        {
+            var lectura = await lecturaService.AsignarAsync(dto, usuario.Id);
+            return Ok(lectura);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new ApiErrorResponse { Message = ex.Message });
+        }
     }
 
     [HttpPatch("{id}")]
@@ -170,13 +245,30 @@ public class LecturasMedidorController(
         var usuario = await ObtenerUsuarioActualAsync();
         if (usuario is null) return Unauthorized();
 
-        var lectura = await lecturaService.ActualizarAsync(id, dto, usuario.Rol, usuario.Id);
-        if (lectura is null)
+        try
         {
-            return NotFound(new ApiErrorResponse { Message = "Lectura no encontrada." });
-        }
+            var lectura = await lecturaService.ActualizarAsync(
+                id,
+                dto,
+                usuario.Rol,
+                usuario.Id,
+                usuario.NombreUsuario);
 
-        return Ok(lectura);
+            if (lectura is null)
+            {
+                return NotFound(new ApiErrorResponse { Message = "Lectura no encontrada." });
+            }
+
+            return Ok(lectura);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new ApiErrorResponse { Message = ex.Message });
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
     }
 
     private async Task<Models.Entities.Usuario?> ObtenerUsuarioActualAsync()
