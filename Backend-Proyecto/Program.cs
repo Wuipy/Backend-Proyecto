@@ -5,9 +5,19 @@ using Backend_Proyecto.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var railwayPort = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(railwayPort))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{railwayPort}");
+}
+
+var connectionString = DatabaseConfiguration.RequireConnectionString(builder.Configuration);
+builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.SectionName));
 builder.Services.Configure<AdminSettings>(builder.Configuration.GetSection(AdminSettings.SectionName));
@@ -17,7 +27,7 @@ var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<
     ?? throw new InvalidOperationException("La configuracion JWT es obligatoria.");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -65,11 +75,35 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
+    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var adminSettings = builder.Configuration.GetSection(AdminSettings.SectionName).Get<AdminSettings>()
         ?? new AdminSettings();
-    await context.Database.MigrateAsync();
-    await DbSeeder.SeedAsync(context, adminSettings);
+
+    logger.LogInformation(
+        "Conectando a PostgreSQL: {Connection}",
+        DatabaseConfiguration.DescribeConnection(connectionString));
+
+    try
+    {
+        await context.Database.MigrateAsync();
+        await DbSeeder.SeedAsync(context, adminSettings);
+    }
+    catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.InvalidPassword)
+    {
+        throw new InvalidOperationException(
+            $"""
+             Autenticacion fallida en PostgreSQL para el usuario "{ex.MessageText.Split('"').ElementAtOrDefault(1) ?? "desconocido"}".
+
+             Revise ConnectionStrings__DefaultConnection:
+               1) Password correcto (Supabase -> Database -> Database password)
+               2) Username=postgres.SU_PROJECT_REF (no solo "postgres" con pooler)
+               3) Si la password tiene caracteres especiales, codifiquela en URI o escapela en la cadena
+
+             Referencia SQL opcional: Migrations/sql/setup_completo_lecturas_supabase.sql
+             """,
+            ex);
+    }
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
