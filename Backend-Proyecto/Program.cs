@@ -17,7 +17,7 @@ var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<
     ?? throw new InvalidOperationException("La configuracion JWT es obligatoria.");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -41,7 +41,6 @@ builder.Services.AddScoped<ISeguimientoService, SeguimientoService>();
 builder.Services.AddScoped<IAveriaService, AveriaService>();
 builder.Services.AddScoped<ISolicitudService, SolicitudService>();
 builder.Services.AddScoped<IConsultaSeguimientoService, ConsultaSeguimientoService>();
-builder.Services.AddScoped<IActividadPlomeriaService, ActividadPlomeriaService>();
 builder.Services.AddScoped<IActividadFontaneroService, ActividadFontaneroService>();
 builder.Services.AddScoped<ILecturaMedidorService, LecturaMedidorService>();
 builder.Services.AddScoped<IContenidoService, ContenidoService>();
@@ -69,6 +68,7 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var adminSettings = builder.Configuration.GetSection(AdminSettings.SectionName).Get<AdminSettings>()
         ?? new AdminSettings();
+    await context.Database.MigrateAsync();
     await DbSeeder.SeedAsync(context, adminSettings);
 }
 

@@ -365,3 +365,6 @@ FodyWeavers.xsd
 # SQLite database local del proyecto SIGASJ
 Backend-Proyecto/sigasj.db
 Backend-Proyecto/sigasj.db-*
+
+# Credenciales locales de desarrollo (Supabase)
+Backend-Proyecto/appsettings.Development.json

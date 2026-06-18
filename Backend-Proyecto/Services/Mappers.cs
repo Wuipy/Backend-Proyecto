@@ -92,42 +92,6 @@ public static class Mappers
 
 
 
-    public static ActividadPlomeriaResponseDto ToActividadResponse(ActividadPlomeria actividad) =>
-
-        new()
-
-        {
-
-            Id = actividad.Id,
-
-            Tipo = actividad.Tipo,
-
-            Cliente = actividad.Cliente,
-
-            Ubicacion = actividad.Ubicacion,
-
-            Descripcion = actividad.Descripcion,
-
-            Fecha = FechaFormatter.Formatear(actividad.FechaCreacion),
-
-            FechaActualizacion = actividad.FechaActualizacion.HasValue
-
-                ? FechaFormatter.Formatear(actividad.FechaActualizacion.Value)
-
-                : null,
-
-            Estado = actividad.Estado,
-
-            Prioridad = actividad.Prioridad,
-
-            NotasSeguimiento = actividad.NotasSeguimiento,
-
-            NumeroAveriaVinculada = actividad.NumeroAveriaVinculada
-
-        };
-
-
-
     public static ActividadFontaneroResponseDto ToActividadFontaneroResponse(ActividadFontanero actividad) =>
 
         new()
