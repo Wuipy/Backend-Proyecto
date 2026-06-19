@@ -146,12 +146,18 @@ public class CrearLecturaMedidorDto
     [MaxLength(150)]
     public string NombreAbonado { get; set; } = string.Empty;
 
+    [MaxLength(50)]
+    public string? NumeroAbonado { get; set; }
+
     [Required]
     [MaxLength(50)]
     public string NumeroMedidor { get; set; } = string.Empty;
 
     [MaxLength(30)]
     public string? CedulaAbonado { get; set; }
+
+    [MaxLength(250)]
+    public string? Ubicacion { get; set; }
 
     [Required]
     public decimal LecturaAnterior { get; set; }
@@ -161,6 +167,46 @@ public class CrearLecturaMedidorDto
 
     [Required]
     public string FechaLectura { get; set; } = string.Empty;
+
+    public string? HoraLectura { get; set; }
+
+    public string? Observaciones { get; set; }
+
+    public string? EstadoMedidor { get; set; }
+
+    public string? MotivoVisita { get; set; }
+
+    public string? ResultadoInspeccion { get; set; }
+
+    public string? EvidenciaNombre { get; set; }
+
+    public string? EvidenciaBase64 { get; set; }
+}
+
+public class AsignarLecturaMedidorDto
+{
+    [Required]
+    [MaxLength(150)]
+    public string NombreAbonado { get; set; } = string.Empty;
+
+    [MaxLength(50)]
+    public string? NumeroAbonado { get; set; }
+
+    [Required]
+    [MaxLength(50)]
+    public string NumeroMedidor { get; set; } = string.Empty;
+
+    [MaxLength(250)]
+    public string? Ubicacion { get; set; }
+
+    [Required]
+    public decimal LecturaAnterior { get; set; }
+
+    [Required]
+    public string FechaLectura { get; set; } = string.Empty;
+
+    [Required]
+    public int FontaneroId { get; set; }
 
     public string? Observaciones { get; set; }
 }
@@ -169,23 +215,70 @@ public class ActualizarLecturaMedidorDto
 {
     public decimal? LecturaActual { get; set; }
     public string? Observaciones { get; set; }
+    public string? ObservacionAdmin { get; set; }
     public string? Estado { get; set; }
+    public string? EstadoMedidor { get; set; }
+    public string? HoraLectura { get; set; }
+    public string? MotivoVisita { get; set; }
+    public string? ResultadoInspeccion { get; set; }
+    public string? EvidenciaNombre { get; set; }
+    public string? EvidenciaBase64 { get; set; }
 }
 
 public class LecturaMedidorResponseDto
 {
     public int Id { get; set; }
     public string NombreAbonado { get; set; } = string.Empty;
+    public string? NumeroAbonado { get; set; }
     public string NumeroMedidor { get; set; } = string.Empty;
     public string? CedulaAbonado { get; set; }
+    public string? Ubicacion { get; set; }
     public decimal LecturaAnterior { get; set; }
     public decimal LecturaActual { get; set; }
     public decimal Consumo { get; set; }
     public decimal? ConsumoMesAnterior { get; set; }
     public bool AlertaConsumoAlto { get; set; }
+    public bool ConsumoAlto { get; set; }
     public string FechaLectura { get; set; } = string.Empty;
+    public string? HoraLectura { get; set; }
     public string? Observaciones { get; set; }
+    public string? ObservacionAdmin { get; set; }
+    public string? MotivoVisita { get; set; }
+    public string? ResultadoInspeccion { get; set; }
     public string Estado { get; set; } = string.Empty;
+    public string? EstadoMedidor { get; set; }
+    public string? EvidenciaNombre { get; set; }
+    public string? EvidenciaBase64 { get; set; }
     public string Fontanero { get; set; } = string.Empty;
+    public string? RevisadaPorAdmin { get; set; }
     public string FechaRegistro { get; set; } = string.Empty;
+    public string? FechaActualizacion { get; set; }
+}
+
+public class ResumenLecturasMedidorDto
+{
+    public int TotalMes { get; set; }
+    public int Pendientes { get; set; }
+    public int RegistradasHoy { get; set; }
+    public int Validadas { get; set; }
+    public int ConInconsistencia { get; set; }
+    public int ConsumosAltos { get; set; }
+}
+
+public class HistorialLecturaDto
+{
+    public int Id { get; set; }
+    public string Accion { get; set; } = string.Empty;
+    public string? EstadoAnterior { get; set; }
+    public string? EstadoNuevo { get; set; }
+    public string? Observacion { get; set; }
+    public string? Usuario { get; set; }
+    public string Fecha { get; set; } = string.Empty;
+}
+
+public class ReporteLecturasMedidorDto
+{
+    public string Tipo { get; set; } = string.Empty;
+    public int TotalRegistros { get; set; }
+    public IReadOnlyList<LecturaMedidorResponseDto> Registros { get; set; } = [];
 }

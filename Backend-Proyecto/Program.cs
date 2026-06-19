@@ -126,6 +126,7 @@ using (var scope = app.Services.CreateScope())
     try
     {
         await context.Database.MigrateAsync();
+        await DatabaseSchemaEnsurer.EnsureLecturasMedidorColumnsAsync(context);
         await DbSeeder.SeedAsync(context, adminSettings);
     }
     catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.InvalidPassword)

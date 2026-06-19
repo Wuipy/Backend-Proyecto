@@ -10,6 +10,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Solicitud> Solicitudes => Set<Solicitud>();
     public DbSet<ActividadFontanero> ActividadesFontanero => Set<ActividadFontanero>();
     public DbSet<LecturaMedidor> LecturasMedidor => Set<LecturaMedidor>();
+    public DbSet<HistorialLectura> HistorialLecturas => Set<HistorialLectura>();
     public DbSet<Comunicado> Comunicados => Set<Comunicado>();
     public DbSet<Proyecto> Proyectos => Set<Proyecto>();
     public DbSet<Usuario> Usuarios => Set<Usuario>();
@@ -58,6 +59,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .WithMany()
                 .HasForeignKey(l => l.FontaneroId)
                 .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(l => l.RevisadaPorAdmin)
+                .WithMany()
+                .HasForeignKey(l => l.RevisadaPorAdminId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<HistorialLectura>(entity =>
+        {
+            entity.HasOne(h => h.LecturaMedidor)
+                .WithMany()
+                .HasForeignKey(h => h.LecturaMedidorId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Usuario>(entity =>
