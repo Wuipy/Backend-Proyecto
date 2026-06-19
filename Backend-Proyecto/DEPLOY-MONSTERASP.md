@@ -90,19 +90,74 @@ Respuesta esperada:
 
 ---
 
-## 4. Frontend
+## Activar HTTPS (Let's Encrypt)
 
-Configure la URL del API en producción:
+HTTPS **no viene activado** por defecto. Hay que encenderlo en el panel de MonsterASP:
 
-```env
-VITE_API_BASE_URL=https://site75093.runasp.net
+1. **Control panel → Domains (Domains/HTTPS)**
+2. Clic en el **candado verde** junto a `sigasj.runasp.net`
+3. Elegir **Let's Encrypt** → **Enable HTTPS**
+4. (Opcional) Activar **Redirect HTTP → HTTPS**
+
+Guia oficial: [Activar HTTPS con Let's Encrypt](https://help.monsterasp.net/books/https/page/how-to-activate-https-with-lets-encrypt-certificate)
+
+En plan **gratis** el certificado dura 90 dias y hay que renovarlo manualmente.
+
+Despues de activarlo, pruebe:
+
 ```
-
-Y agregue esa URL en `Cors__AllowedOrigins__0` en MonsterASP.
+https://sigasj.runasp.net/swagger
+https://sigasj.runasp.net/api/health
+```
 
 ---
 
-## 5. Solución de problemas
+## Swagger (documentacion API)
+
+Tras el deploy, la API expone Swagger UI en:
+
+```
+http://sigasj.runasp.net/swagger
+```
+
+La raiz `/` redirige automaticamente a `/swagger`.
+
+Para probar endpoints protegidos: login en `POST /api/auth/login`, copie el token y en Swagger use **Authorize** con `Bearer {token}`.
+
+---
+
+## 4. Frontend (Netlify)
+
+El backend en MonsterASP responde en **HTTP** (`http://sigasj.runasp.net`), no en HTTPS.
+Netlify sirve el front en HTTPS, asi que el navegador bloquea llamadas directas al API (mixed content).
+
+**Solucion:** proxy en `netlify.toml` del frontend:
+
+```toml
+[[redirects]]
+  from = "/api/*"
+  to = "http://sigasj.runasp.net/api/:splat"
+  status = 200
+  force = true
+```
+
+En Netlify **no** hace falta `VITE_API_BASE_URL` externa; use `/api` (mismo origen).
+
+Agregue en CORS del backend:
+
+```
+Cors__AllowedOrigins__0 = https://sigasj.netlify.app
+```
+
+---
+
+## 5. Verificar backend directo
+
+```
+http://sigasj.runasp.net/api/health
+```
+
+(No use `https://` — puede fallar con connection reset en este hosting.)
 
 | Síntoma | Qué revisar |
 |---------|-------------|

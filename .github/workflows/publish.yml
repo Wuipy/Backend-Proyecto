@@ -2,7 +2,7 @@ name: Build, publish and deploy to MonsterASP.NET
 
 on:
   push:
-    branches: [main, josh]
+    branches: [master, josh]
   workflow_dispatch:
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
         with:
           dotnet-version: "9.0.x"
 
-      - name: Configurar appsettings.Production.json (secrets SIGASJ)
+      - name: Configurar appsettings.Production.json
         shell: pwsh
         env:
           CONNECTION: ${{ secrets.CONNECTIONSTRINGS__DEFAULTCONNECTION }}
@@ -28,14 +28,10 @@ jobs:
           ADMIN_PASSWORD: ${{ secrets.ADMIN__CONTRASENA }}
           CORS_ORIGIN: ${{ secrets.CORS__ALLOWEDORIGINS__0 }}
         run: |
-          if (-not $env:CONNECTION) {
-            Write-Warning "Sin CONNECTIONSTRINGS__DEFAULTCONNECTION. Agregue el secret o configure variables en MonsterASP."
-            exit 0
-          }
-
-          if (-not $env:JWT_SECRET) { throw "Falta JWT__SECRET" }
-          if (-not $env:ADMIN_PASSWORD) { throw "Falta ADMIN__CONTRASENA" }
-          if (-not $env:CORS_ORIGIN) { $env:CORS_ORIGIN = "https://site75093.runasp.net" }
+          if (-not $env:CONNECTION) { throw "Falta secret CONNECTIONSTRINGS__DEFAULTCONNECTION" }
+          if (-not $env:JWT_SECRET) { throw "Falta secret JWT__SECRET" }
+          if (-not $env:ADMIN_PASSWORD) { throw "Falta secret ADMIN__CONTRASENA" }
+          if (-not $env:CORS_ORIGIN) { $env:CORS_ORIGIN = "https://sigasjiv.netlify.app" }
 
           $config = [ordered]@{
             Logging = [ordered]@{
@@ -59,19 +55,23 @@ jobs:
               Contrasena = $env:ADMIN_PASSWORD
             }
             Cors = [ordered]@{
-              AllowedOrigins = @($env:CORS_ORIGIN)
+              AllowedOrigins = @(
+                $env:CORS_ORIGIN,
+                "https://sigasj.netlify.app",
+                "http://sigasj.runasp.net",
+                "http://localhost:5173",
+                "http://127.0.0.1:5173"
+              )
             }
           }
 
           $config | ConvertTo-Json -Depth 6 | Set-Content "appsettings.Production.json" -Encoding utf8
+          Write-Host "appsettings.Production.json generado desde secrets (no commiteado)."
 
-      - name: Install dependencies
+      - name: Restore
         run: dotnet restore
 
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
-
-      - name: Publish
+      - name: Publish (win-x86 MonsterASP)
         run: dotnet publish --configuration Release --output ./publish --runtime win-x86
 
       - name: Deploy to MonsterASP.NET via WebDeploy
@@ -82,3 +82,11 @@ jobs:
           server-username: ${{ secrets.SERVER_USERNAME }}
           server-password: ${{ secrets.SERVER_PASSWORD }}
           source-path: '\Backend-Proyecto\publish\'
+
+      - name: Verificar API en produccion
+        shell: pwsh
+        run: |
+          Start-Sleep -Seconds 15
+          $response = Invoke-RestMethod -Uri "http://sigasj.runasp.net/api/health" -TimeoutSec 30
+          Write-Host ($response | ConvertTo-Json -Compress)
+          if ($response.status -ne "ok") { throw "Health check fallo" }

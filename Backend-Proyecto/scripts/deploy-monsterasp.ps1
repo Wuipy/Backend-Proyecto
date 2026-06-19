@@ -60,7 +60,13 @@ try {
             Contrasena = $base.Admin.Contrasena
         }
         Cors = [ordered]@{
-            AllowedOrigins = @("https://sigasj.runasp.net", "http://localhost:5173", "http://127.0.0.1:5173")
+            AllowedOrigins = @(
+                "https://sigasjiv.netlify.app",
+                "https://sigasj.netlify.app",
+                "http://sigasj.runasp.net",
+                "http://localhost:5173",
+                "http://127.0.0.1:5173"
+            )
         }
     }
 
@@ -80,7 +86,7 @@ try {
 
     Write-Host ""
     Write-Host "Deploy completado." -ForegroundColor Green
-    Write-Host "Pruebe: https://sigasj.runasp.net/api/health"
+    Write-Host "Pruebe: http://sigasj.runasp.net/swagger"
 }
 finally {
     Pop-Location

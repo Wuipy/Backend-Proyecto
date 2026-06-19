@@ -1,62 +1,63 @@
-# GitHub Secrets — Backend SIGASJ
+# GitHub Secrets — Backend SIGASJ → MonsterASP
 
-Documentacion alineada con el manual oficial de MonsterASP:
+Manual MonsterASP: [Deploy via Github actions](https://help.monsterasp.net/books/github/page/how-to-deploy-website-via-github-actions)
 
-[How to deploy Website via Github actions?](https://help.monsterasp.net/books/github/page/how-to-deploy-website-via-github-actions)
+**Solo Wuipy** (dueno del repo) crea los secrets en:
 
-Solo el **dueno del repositorio** (`Wuipy`) crea los secrets en:
+**GitHub → Backend-Proyecto → Settings → Secrets and variables → Actions → New repository secret**
 
-**GitHub → Backend-Proyecto → Settings → Secrets and variables → Actions**
-
-Los colaboradores hacen push; el deploy corre con los secrets del repo.
+Workflow: `.github/workflows/publish.yml`  
+Se dispara con push a **`master`** o **`josh`**, o manualmente en **Actions → Run workflow**.
 
 ---
 
-## Secrets de Web Deploy (obligatorios — manual MonsterASP)
+## Secrets obligatorios — Web Deploy
 
-| Secret | Valor para este proyecto |
-|--------|--------------------------|
+| Secret | Valor |
+|--------|--------|
 | `WEBSITE_NAME` | `site75093` |
 | `SERVER_COMPUTER_NAME` | `https://site75093.siteasp.net:8172` |
 | `SERVER_USERNAME` | `site75093` |
-| `SERVER_PASSWORD` | Contrasena de Web Deploy (panel MonsterASP) |
-
-Estos cuatro nombres deben coincidir **exactamente** con el manual. El workflow `.github/workflows/publish.yml` los usa tal cual.
+| `SERVER_PASSWORD` | *(contrasena Web Deploy del panel MonsterASP)* |
 
 ---
 
-## Secrets de la aplicacion (recomendados — SIGASJ)
+## Secrets obligatorios — aplicacion
 
-Para que la API arranque con Supabase y JWT, el dueno del repo puede agregar tambien:
-
-| Secret | Contenido |
-|--------|-----------|
-| `CONNECTIONSTRINGS__DEFAULTCONNECTION` | Cadena Supabase (Session pooler, puerto 5432) |
-| `JWT__SECRET` | Clave JWT (minimo 32 caracteres) |
+| Secret | Valor |
+|--------|--------|
+| `CONNECTIONSTRINGS__DEFAULTCONNECTION` | `Host=aws-1-us-east-1.pooler.supabase.com;Port=5432;Database=postgres;Username=postgres.wgedltybvsgmlbbnxnkr;Password=TU_PASSWORD;SSL Mode=Require;Trust Server Certificate=true` |
+| `JWT__SECRET` | Clave segura de 32+ caracteres |
 | `ADMIN__CONTRASENA` | Contrasena admin en produccion |
-| `CORS__ALLOWEDORIGINS__0` | URL publica del frontend |
+| `CORS__ALLOWEDORIGINS__0` | `https://sigasjiv.netlify.app` |
 
-Si faltan, el deploy a MonsterASP puede completarse pero la API fallara al iniciar hasta configurarlos aqui o en el panel MonsterASP (Scripting → Environment Variables).
-
-### Ejemplo Supabase
-
-```
-Host=aws-1-us-east-1.pooler.supabase.com;Port=5432;Database=postgres;Username=postgres.SU_PROJECT_REF;Password=SU_PASSWORD;SSL Mode=Require;Trust Server Certificate=true
-```
-
-> Con pooler use `Username=postgres.SU_PROJECT_REF`, no solo `postgres`.
+> Username Supabase con pooler: `postgres.wgedltybvsgmlbbnxnkr` (no solo `postgres`).
 
 ---
 
-## Flujo
+## Como ejecutar el deploy
 
-1. Push a `main` o `josh`, o **Actions → Build, publish and deploy to MonsterASP.NET → Run workflow**
-2. GitHub compila y publica en `./publish`
-3. `simply-web-deploy` sube al sitio con los secrets `WEBSITE_*` / `SERVER_*`
-4. Si existen secrets de aplicacion, se genera `appsettings.Production.json` antes del publish
+1. Wuipy crea los **8 secrets** arriba
+2. Push a `master` o `josh` **o** Actions → **Build, publish and deploy to MonsterASP.NET** → **Run workflow**
+3. El workflow compila (`win-x86`), genera `appsettings.Production.json` y sube a MonsterASP
+4. Al final prueba `http://sigasj.runasp.net/api/health`
 
-## Verificar
+---
+
+## Verificar manualmente
 
 ```
-https://site75093.runasp.net/api/health
+http://sigasj.runasp.net/api/health
+http://sigasj.runasp.net/swagger
 ```
+
+---
+
+## Errores comunes
+
+| Error en Actions | Causa |
+|------------------|--------|
+| `Falta secret CONNECTIONSTRINGS__...` | Secret no creado en GitHub |
+| Web Deploy unauthorized | `SERVER_PASSWORD` incorrecto |
+| Health check fallo | Supabase/JWT mal configurados |
+| Workflow no corre al push | Push fue a rama distinta de `master`/`josh` |
