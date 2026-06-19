@@ -82,8 +82,8 @@ jobs:
           if (-not "${{ secrets.SERVER_USERNAME }}") { throw "Falta secret SERVER_USERNAME" }
           if (-not "${{ secrets.SERVER_PASSWORD }}") { throw "Falta secret SERVER_PASSWORD" }
 
-          $host = "${{ secrets.SERVER_COMPUTER_NAME }}"
-          if ($host -match 'runasp\.net') {
+          $serverComputerName = "${{ secrets.SERVER_COMPUTER_NAME }}"
+          if ($serverComputerName -match 'runasp\.net') {
             throw @"
           SERVER_COMPUTER_NAME incorrecto: usa siteasp.net (Web Deploy), NO runasp.net (sitio publico).
 
