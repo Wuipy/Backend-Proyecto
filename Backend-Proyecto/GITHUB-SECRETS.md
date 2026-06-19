@@ -13,12 +13,24 @@ Se dispara con push a **`master`** o **`josh`**, o manualmente en **Actions → 
 
 ## Secrets obligatorios — Web Deploy
 
-| Secret | Valor |
-|--------|--------|
+| Secret | Valor exacto |
+|--------|----------------|
 | `WEBSITE_NAME` | `site75093` |
 | `SERVER_COMPUTER_NAME` | `https://site75093.siteasp.net:8172` |
 | `SERVER_USERNAME` | `site75093` |
 | `SERVER_PASSWORD` | *(contrasena Web Deploy del panel MonsterASP)* |
+
+### MUY IMPORTANTE — `SERVER_COMPUTER_NAME`
+
+Web Deploy usa **`siteasp.net`**, no la URL publica del sitio.
+
+| Correcto | Incorrecto (ERROR_DESTINATION_INVALID) |
+|----------|----------------------------------------|
+| `https://site75093.siteasp.net:8172` | `https://sigasj.runasp.net:8172` |
+| | `https://site75093.runasp.net:8172` |
+| | `http://sigasj.runasp.net:8172` |
+
+Lo encuentra en MonsterASP → Control panel → Web Deploy (no en la URL del navegador).
 
 ---
 
@@ -57,6 +69,7 @@ http://sigasj.runasp.net/swagger
 
 | Error en Actions | Causa |
 |------------------|--------|
+| `ERROR_DESTINATION_INVALID` / `remote name could not be resolved` | `SERVER_COMPUTER_NAME` usa `runasp.net` en vez de `siteasp.net:8172` |
 | `Falta secret CONNECTIONSTRINGS__...` | Secret no creado en GitHub |
 | Web Deploy unauthorized | `SERVER_PASSWORD` incorrecto |
 | Health check fallo | Supabase/JWT mal configurados |

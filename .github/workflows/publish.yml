@@ -74,6 +74,32 @@ jobs:
       - name: Publish (win-x86 MonsterASP)
         run: dotnet publish --configuration Release --output ./publish --runtime win-x86
 
+      - name: Validar Web Deploy antes de publicar
+        shell: pwsh
+        run: |
+          if (-not "${{ secrets.WEBSITE_NAME }}") { throw "Falta secret WEBSITE_NAME" }
+          if (-not "${{ secrets.SERVER_COMPUTER_NAME }}") { throw "Falta secret SERVER_COMPUTER_NAME" }
+          if (-not "${{ secrets.SERVER_USERNAME }}") { throw "Falta secret SERVER_USERNAME" }
+          if (-not "${{ secrets.SERVER_PASSWORD }}") { throw "Falta secret SERVER_PASSWORD" }
+
+          $host = "${{ secrets.SERVER_COMPUTER_NAME }}"
+          if ($host -match 'runasp\.net') {
+            throw @"
+          SERVER_COMPUTER_NAME incorrecto: usa siteasp.net (Web Deploy), NO runasp.net (sitio publico).
+
+          Valor correcto:
+            https://site75093.siteasp.net:8172
+
+          Valores INCORRECTOS (no resuelven DNS):
+            https://sigasj.runasp.net:8172
+            https://site75093.runasp.net:8172
+          "@
+          }
+
+          Write-Host "Comprobando DNS de site75093.siteasp.net..."
+          Resolve-DnsName site75093.siteasp.net -ErrorAction Stop | Out-Null
+          Write-Host "DNS OK. Publicando a MonsterASP..."
+
       - name: Deploy to MonsterASP.NET via WebDeploy
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0
         with:
