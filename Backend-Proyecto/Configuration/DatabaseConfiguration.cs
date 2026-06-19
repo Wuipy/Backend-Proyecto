@@ -19,6 +19,7 @@ public static class DatabaseConfiguration
                 Configure una de estas opciones:
                   1) appsettings.Development.json (solo local)
                   2) Variable de entorno ConnectionStrings__DefaultConnection
+                     (Railway, MonsterASP Control panel -> Scripting -> Environment Variables, etc.)
 
                 Formato Supabase (pooler, puerto 5432):
                 Host=aws-0-REGION.pooler.supabase.com;Port=5432;Database=postgres;Username=postgres.SU_PROJECT_REF;Password=SU_PASSWORD;SSL Mode=Require;Trust Server Certificate=true

@@ -1,0 +1,84 @@
+name: Build, publish and deploy to MonsterASP.NET
+
+on:
+  push:
+    branches: [main, josh]
+  workflow_dispatch:
+
+jobs:
+  build_and_deploy:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: Backend-Proyecto
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Configurar appsettings.Production.json (secrets SIGASJ)
+        shell: pwsh
+        env:
+          CONNECTION: ${{ secrets.CONNECTIONSTRINGS__DEFAULTCONNECTION }}
+          JWT_SECRET: ${{ secrets.JWT__SECRET }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN__CONTRASENA }}
+          CORS_ORIGIN: ${{ secrets.CORS__ALLOWEDORIGINS__0 }}
+        run: |
+          if (-not $env:CONNECTION) {
+            Write-Warning "Sin CONNECTIONSTRINGS__DEFAULTCONNECTION. Agregue el secret o configure variables en MonsterASP."
+            exit 0
+          }
+
+          if (-not $env:JWT_SECRET) { throw "Falta JWT__SECRET" }
+          if (-not $env:ADMIN_PASSWORD) { throw "Falta ADMIN__CONTRASENA" }
+          if (-not $env:CORS_ORIGIN) { $env:CORS_ORIGIN = "https://site75093.runasp.net" }
+
+          $config = [ordered]@{
+            Logging = [ordered]@{
+              LogLevel = [ordered]@{
+                Default = "Warning"
+                "Microsoft.AspNetCore" = "Warning"
+              }
+            }
+            AllowedHosts = "*"
+            ConnectionStrings = [ordered]@{
+              DefaultConnection = $env:CONNECTION
+            }
+            Jwt = [ordered]@{
+              Secret = $env:JWT_SECRET
+              Issuer = "SIGASJ"
+              Audience = "SIGASJ-Frontend"
+              ExpirationHours = 8
+            }
+            Admin = [ordered]@{
+              Usuario = "admin"
+              Contrasena = $env:ADMIN_PASSWORD
+            }
+            Cors = [ordered]@{
+              AllowedOrigins = @($env:CORS_ORIGIN)
+            }
+          }
+
+          $config | ConvertTo-Json -Depth 6 | Set-Content "appsettings.Production.json" -Encoding utf8
+
+      - name: Install dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish --configuration Release --output ./publish --runtime win-x86
+
+      - name: Deploy to MonsterASP.NET via WebDeploy
+        uses: rasmusbuchholdt/simply-web-deploy@2.1.0
+        with:
+          website-name: ${{ secrets.WEBSITE_NAME }}
+          server-computer-name: ${{ secrets.SERVER_COMPUTER_NAME }}
+          server-username: ${{ secrets.SERVER_USERNAME }}
+          server-password: ${{ secrets.SERVER_PASSWORD }}
+          source-path: '\Backend-Proyecto\publish\'

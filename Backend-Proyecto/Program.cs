@@ -104,6 +104,10 @@ using (var scope = app.Services.CreateScope())
              """,
             ex);
     }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "No se pudo migrar o sembrar la base de datos al iniciar. La API arrancara igual; revise logs en MonsterASP.");
+    }
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
