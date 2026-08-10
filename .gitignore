@@ -185,6 +185,7 @@ publish/
 # Note: Comment the next line if you want to checkin your web deploy settings,
 # but database connection strings (with potential passwords) will be unencrypted
 *.pubxml
+!Backend-Proyecto/Properties/PublishProfiles/MonsterASP.pubxml
 *.publishproj
 
 # Microsoft Azure Web App publish settings. Comment the next line if you want to
@@ -368,3 +369,10 @@ Backend-Proyecto/sigasj.db-*
 
 # Credenciales locales de desarrollo (Supabase)
 Backend-Proyecto/appsettings.Development.json
+
+# Produccion — se genera en CI desde GitHub Secrets
+Backend-Proyecto/appsettings.Production.json
+
+# Credenciales locales de deploy MonsterASP (Web Deploy)
+Backend-Proyecto/monsterasp.local.env
+Backend-Proyecto/**/*.pubxml.user
